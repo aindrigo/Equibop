@@ -16,7 +16,12 @@ import { mainWin } from "./mainWindow";
 const xdgRuntimeDir = process.env.XDG_RUNTIME_DIR || process.env.TMP || "/tmp";
 const socketFile = join(xdgRuntimeDir, "vesktop-ipc");
 
-const Actions = new Set([IpcEvents.TOGGLE_SELF_DEAF, IpcEvents.TOGGLE_SELF_MUTE]);
+const Actions = new Set([
+    IpcEvents.TOGGLE_SELF_DEAF,
+    IpcEvents.TOGGLE_SELF_MUTE,
+    IpcEvents.SET_SELF_MUTE_ON,
+    IpcEvents.SET_SELF_MUTE_OFF
+]);
 
 function createFIFO() {
     if (existsSync(socketFile)) {

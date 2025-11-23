@@ -37,3 +37,4 @@ customSettingsSections.push(() => ({
 
 VesktopNative.voice.onToggleSelfMute(() => VoiceActions.toggleSelfMute());
 VesktopNative.voice.onToggleSelfDeaf(() => VoiceActions.toggleSelfDeaf());
+VesktopNative.voice.onSetSelfMute((state) => VoiceActions.setTemporarySelfMute(state));
