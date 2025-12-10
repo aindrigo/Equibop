@@ -7,7 +7,7 @@
 import "./settings.css";
 
 import { classNameFactory } from "@equicord/types/api/Styles";
-import { Divider, ErrorBoundary } from "@equicord/types/components";
+import { Divider, SettingsTab, wrapTab } from "@equicord/types/components";
 import { Text } from "@equicord/types/webpack/common";
 import { ComponentType } from "react";
 import { Settings, useSettings } from "renderer/settings";
@@ -137,39 +137,47 @@ const SettingsOptions: Record<string, Array<BooleanSetting | SettingsComponent>>
     Notifications: [NotificationBadgeToggle],
     "Rich Presence (arRPC)": [
         {
+            key: "arRPCDisabled",
+            title: "Disable Rich Presence Entirely",
+            description: "Completely disable arRPC - no integrated server, no WebSocket connection, no Rich Presence",
+            defaultValue: false
+        },
+        {
             key: "arRPC",
             title: "Enable Integrated arRPC",
             description:
                 "Enable the integrated arRPC server (process scanning and IPC). Disable this if using only external arRPC.",
-            defaultValue: false
+            defaultValue: false,
+            disabled: () => Settings.store.arRPCDisabled === true
         },
         {
             key: "arRPCProcessScanning",
             title: "Process Scanning",
             description: "Enables automatic game/application detection for Rich Presence",
             defaultValue: true,
-            disabled: () => Settings.store.arRPC === false
+            disabled: () => Settings.store.arRPCDisabled === true || Settings.store.arRPC === false
         },
         {
             key: "arRPCBridge",
             title: "Bridge Server",
             description: "Enables the WebSocket bridge server for web clients",
             defaultValue: true,
-            disabled: () => Settings.store.arRPC === false
+            disabled: () => Settings.store.arRPCDisabled === true || Settings.store.arRPC === false
         },
         {
             key: "arRPCDebug",
             title: "Debug Logging",
             description: "Enables detailed debug logging (bun path detection, process spawning, IPC messages, etc.)",
             defaultValue: false,
-            disabled: () => Settings.store.arRPC === false
+            disabled: () => Settings.store.arRPCDisabled === true || Settings.store.arRPC === false
         },
         ArRPCWebSocketSettings,
         {
             key: "arRPCWebSocketAutoReconnect",
             title: "Auto Reconnect",
             description: "Automatically reconnect to arRPC WebSocket when connection is lost",
-            defaultValue: true
+            defaultValue: true,
+            disabled: () => Settings.store.arRPCDisabled === true
         }
     ],
     Miscellaneous: [
@@ -225,20 +233,13 @@ function SettingsSections() {
     return <>{sections}</>;
 }
 
-export default ErrorBoundary.wrap(
-    function SettingsUI() {
-        return (
-            <section>
-                <Text variant="heading-xl/semibold" color="header-primary" className={cl("title")}>
-                    Vesktop Settings
-                </Text>
-                <Updater />
-                <SettingsSections />
-            </section>
-        );
-    },
-    {
-        message:
-            "Failed to render the Equibop Settings tab. If this issue persists, try to right click the Equibop tray icon, then click 'Repair Equicord'. And make sure your Equibop is up to date."
-    }
-);
+function SettingsUI() {
+    return (
+        <SettingsTab>
+            <Updater />
+            <SettingsSections />
+        </SettingsTab>
+    );
+}
+
+export default wrapTab(SettingsUI, "Equibop Settings");
