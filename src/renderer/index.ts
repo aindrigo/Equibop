@@ -46,3 +46,8 @@ customSections.push(() => ({
 VesktopNative.voice.onToggleSelfMute(() => VoiceActions.toggleSelfMute());
 VesktopNative.voice.onToggleSelfDeaf(() => VoiceActions.toggleSelfDeaf());
 VesktopNative.voice.onSetSelfMute((state) => VoiceActions.setTemporarySelfMute(state));
+
+const style = document.createElement("style");
+style.id = "equibop-css-core";
+VesktopNative.app.getRendererCss().then(css => (style.textContent = css));
+document.addEventListener("DOMContentLoaded", () => document.documentElement.append(style), { once: true });

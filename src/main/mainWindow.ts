@@ -324,7 +324,7 @@ function buildBrowserWindowOptions(): BrowserWindowConstructorOptions {
     const { staticTitle, transparencyOption, enableMenu, customTitleBar, splashTheming, splashBackground } =
         Settings.store;
 
-    const { frameless, transparent, macosTranslucency } = VencordSettings.store;
+    const { frameless, transparent, macosVibrancyStyle } = VencordSettings.store;
 
     const noFrame = frameless === true || customTitleBar === true;
     const backgroundColor =
@@ -336,7 +336,7 @@ function buildBrowserWindowOptions(): BrowserWindowConstructorOptions {
         ...(process.platform === "win32" && { icon: join(STATIC_DIR, "icon.ico") }),
         webPreferences: {
             nodeIntegration: false,
-            sandbox: false, // TODO
+            sandbox: true,
             contextIsolation: true,
             devTools: true,
             preload: join(__dirname, "preload.js"),
@@ -374,9 +374,9 @@ function buildBrowserWindowOptions(): BrowserWindowConstructorOptions {
         options.titleBarStyle = "hidden";
         options.trafficLightPosition = { x: 10, y: 10 };
 
-        if (macosTranslucency) {
-            options.vibrancy = "sidebar";
-            options.backgroundColor = "#ffffff00";
+        if (macosVibrancyStyle) {
+            options.vibrancy = macosVibrancyStyle;
+            options.backgroundColor = "#00000000";
         }
     }
 
@@ -410,6 +410,10 @@ function createMainWindow() {
         else win.hide();
 
         return false;
+    });
+
+    win.on("focus", () => {
+        win.flashFrame(false);
     });
 
     initWindowBoundsListeners(win);
