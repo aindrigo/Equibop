@@ -56,21 +56,21 @@ function openDeveloperOptionsModal(settings: Settings) {
 
 const EquicordLocationPicker: SettingsComponent = ({ settings }) => {
     const forceUpdate = useForceUpdater();
-    const equicordDir = VesktopNative.fileManager.getEquicordDir();
+    const usingCustomEquicordDir = VesktopNative.fileManager.isUsingCustomVencordDir();
 
     return (
         <>
             <Paragraph>
                 Equicord files are loaded from{" "}
-                {equicordDir ? (
+                {usingCustomEquicordDir ? (
                     <TextButton
                         variant="link"
                         onClick={e => {
                             e.preventDefault();
-                            VesktopNative.fileManager.showItemInFolder(equicordDir!);
+                            VesktopNative.fileManager.showCustomVencordDir();
                         }}
                     >
-                        {equicordDir}
+                        a custom location
                     </TextButton>
                 ) : (
                     "the default location"

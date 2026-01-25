@@ -8,7 +8,7 @@ import { BrowserWindow } from "electron";
 import { join } from "path";
 import { STATIC_DIR } from "shared/paths";
 
-import { Settings } from "./settings";
+import { State } from "./settings";
 import { makeLinksOpenExternally } from "./utils/makeLinksOpenExternally";
 import { loadView } from "./vesktopStatic";
 
@@ -23,7 +23,11 @@ export function createArgumentsWindow() {
     argumentsWindow = new BrowserWindow({
         center: true,
         autoHideMenuBar: true,
-        ...(process.platform === "win32" && { icon: join(STATIC_DIR, "icon.ico") }),
+        ...(process.platform === "win32"
+            ? { icon: join(STATIC_DIR, "icon.ico") }
+            : process.platform === "linux"
+              ? { icon: join(STATIC_DIR, "icon.png") }
+              : {}),
         height: 300,
         width: 500,
         resizable: false
@@ -32,7 +36,7 @@ export function createArgumentsWindow() {
     makeLinksOpenExternally(argumentsWindow);
 
     const data = new URLSearchParams({
-        CURRENT_ARGS: Settings.store.launchArguments ?? ""
+        CURRENT_ARGS: State.store.launchArguments ?? ""
     });
 
     loadView(argumentsWindow, "arguments.html", data);
@@ -46,7 +50,7 @@ export function createArgumentsWindow() {
         if (!msg.startsWith("save:")) return;
 
         const args = msg.slice(5);
-        Settings.store.launchArguments = args || undefined;
+        State.store.launchArguments = args || undefined;
 
         argumentsWindow?.close();
     });

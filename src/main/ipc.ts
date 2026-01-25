@@ -8,7 +8,7 @@ if (process.platform === "linux") import("./venmic");
 
 import { execFile } from "node:child_process";
 import { type FSWatcher, mkdirSync, readFileSync, watch } from "node:fs";
-import { open, readFile } from "node:fs/promises";
+import { open, readFile, stat } from "node:fs/promises";
 import { release } from "node:os";
 import { join } from "node:path";
 
@@ -29,7 +29,7 @@ import { debounce } from "shared/utils/debounce";
 
 import { IpcEvents } from "../shared/IpcEvents";
 import { setBadgeCount } from "./appBadge";
-import { getArRPCStatus } from "./arrpc";
+import { createArRPCWindow } from "./arrpcWindow";
 import { autoStart } from "./autoStart";
 import { VENCORD_QUICKCSS_FILE, VENCORD_THEMES_DIR } from "./constants";
 import { AppEvents } from "./events";
@@ -74,7 +74,9 @@ handleSync(IpcEvents.AUTOSTART_ENABLED, () => autoStart.isEnabled());
 handle(IpcEvents.ENABLE_AUTOSTART, autoStart.enable);
 handle(IpcEvents.DISABLE_AUTOSTART, autoStart.disable);
 
-handleSync(IpcEvents.ARRPC_GET_STATUS, () => getArRPCStatus());
+handle(IpcEvents.ARRPC_OPEN_SETTINGS, () => {
+    createArRPCWindow();
+});
 
 handleSync(IpcEvents.GET_PLATFORM_SPOOF_INFO, () => getPlatformSpoofInfo());
 
@@ -97,8 +99,15 @@ handle(IpcEvents.RELAUNCH, async () => {
     app.exit();
 });
 
-handle(IpcEvents.SHOW_ITEM_IN_FOLDER, (_, path) => {
-    shell.showItemInFolder(path);
+handleSync(IpcEvents.IS_USING_CUSTOM_VENCORD_DIR, () => !!State.store.equicordDir);
+handle(IpcEvents.SHOW_CUSTOM_VENCORD_DIR, async () => {
+    const { equicordDir } = State.store;
+    if (!equicordDir) return;
+
+    const stats = await stat(equicordDir);
+    if (!stats.isDirectory()) return;
+
+    shell.openPath(equicordDir);
 });
 
 function getWindow(e: IpcMainInvokeEvent, key?: string) {
@@ -139,8 +148,6 @@ handle(IpcEvents.SPELLCHECK_ADD_TO_DICTIONARY, (e, word: string) => {
     e.sender.session.addWordToSpellCheckerDictionary(word);
 });
 
-handleSync(IpcEvents.GET_VENCORD_DIR, e => (e.returnValue = State.store.equicordDir));
-
 handle(IpcEvents.SELECT_VENCORD_DIR, async (_e, value?: null) => {
     if (value === null) {
         delete State.store.equicordDir;
@@ -177,7 +184,11 @@ handle(IpcEvents.CLIPBOARD_COPY_IMAGE, async (_, buf: ArrayBuffer, src: string) 
 function openDebugPage(page: string) {
     const win = new BrowserWindow({
         autoHideMenuBar: true,
-        ...(process.platform === "win32" && { icon: join(STATIC_DIR, "icon.ico") })
+        ...(process.platform === "win32"
+            ? { icon: join(STATIC_DIR, "icon.ico") }
+            : process.platform === "linux"
+              ? { icon: join(STATIC_DIR, "icon.png") }
+              : {})
     });
 
     win.loadURL(page);
