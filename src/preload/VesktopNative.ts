@@ -136,6 +136,8 @@ export const VesktopNative = {
         onSetSelfMute: (listener: (state: boolean) => void) => {
             ipcRenderer.on(IpcEvents.SET_SELF_MUTE_ON, () => listener(true));
             ipcRenderer.on(IpcEvents.SET_SELF_MUTE_OFF, () => listener(false));
+        onToggleVAD: (listener: (...args: any[]) => void) => {
+            ipcRenderer.on(IpcEvents.TOGGLE_VAD, listener);
         }
     },
     debug: {

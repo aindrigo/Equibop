@@ -56,6 +56,7 @@ export const enum IpcEvents {
     CLIPBOARD_COPY_IMAGE = "VCD_CLIPBOARD_COPY_IMAGE",
     TOGGLE_SELF_MUTE = "VCD_TOGGLE_SELF_MUTE",
     TOGGLE_SELF_DEAF = "VCD_TOGGLE_SELF_DEAF",
+    TOGGLE_VAD = "VCD_TOGGLE_VAD",
 
     SET_SELF_MUTE_ON = "VCD_SET_SELF_MUTE_ON",
     SET_SELF_MUTE_OFF = "VCD_SET_SELF_MUTE_OFF",
@@ -99,5 +100,9 @@ export const enum IpcCommands {
 
     GET_LANGUAGES = "navigator.languages",
 
-    SCREEN_SHARE_PICKER = "screenshare:picker"
+    SCREEN_SHARE_PICKER = "screenshare:picker",
+
+    QUERY_IS_IN_CALL = "query:isInCall",
+    QUERY_VOICE_CHANNEL_NAME = "query:voiceChannelName",
+    QUERY_CALL_DURATION = "query:callDuration"
 }
